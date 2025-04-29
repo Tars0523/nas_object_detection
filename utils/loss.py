@@ -200,18 +200,20 @@ class ComputeLoss:
                 offsets = 0
 
             # Define
-            b, c = t[:, :2].long().T  # image, class
-            gxy = t[:, 2:4]  # grid xy
-            gwh = t[:, 4:6]  # grid wh
-            gij = (gxy - offsets).long()
-            gi, gj = gij.T  # grid xy indices
+            b, c = t[:, :2].long().T          # image, class
+            gxy = t[:, 2:4]                   # grid xy (float)
+            gwh = t[:, 4:6]                   # grid wh (float)
+            gij = (gxy - offsets).round().long()   # grid indices (int)
+            gi, gj = gij.T
 
-            # Append
-            a = t[:, 6].long()  # anchor indices
-            indices.append((b, a, gj.clamp_(0, gain[3] - 1), gi.clamp_(0, gain[2] - 1)))  # image, anchor, grid indices
-            tbox.append(torch.cat((gxy - gij, gwh), 1))  # box
-            anch.append(anchors[a])  # anchors
-            tcls.append(c)  # class
+            # Append  ──────★ 이 블록 교체
+            a   = t[:, 6].long()                              # anchor indices
+            gj  = torch.clamp(gj, 0, int(gain[3] - 1)).long() # grid-y
+            gi  = torch.clamp(gi, 0, int(gain[2] - 1)).long() # grid-x
+            indices.append((b, a, gj, gi))                    # img, anchor, grid
+            tbox.append(torch.cat((gxy - gij.float(), gwh), 1))
+            anch.append(anchors[a])
+            tcls.append(c)
+
 
         return tcls, tbox, indices, anch
-

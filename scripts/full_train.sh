@@ -3,8 +3,8 @@ gpu=( $@ )
 gpu_num=$#
 echo $gpu_num
 
-data=coco.yaml
-ID=<timestamp/of/your/search/process>
+data=data/VisDrone.yaml
+ID=20250428-180517
 yamlID=49
 project=runs/train-$ID
 name=full_train
@@ -12,7 +12,7 @@ cfg=$project/exp/genotypes/$yamlID.yaml
 LOG_DIR=test_logs
 train_type=from_scratch  
 
-BATCHSIZE=80
+BATCHSIZE=4
 
 gpustr=${gpu[0]}
 for i in ${gpu[@]:1:$gpu_num-1};do
